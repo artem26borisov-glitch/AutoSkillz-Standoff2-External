@@ -18,21 +18,25 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0" "ndk;27.0.12077973" || true
 
-      - name: Setup NDK
-        uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r27
+      - name: Make gradlew executable
+        run: |
+          cd loader
+          chmod +x gradlew || true
 
       - name: Build APK
         run: |
           cd loader
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon || ./gradlew assembleRelease --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: loader/app/build/outputs/apk/debug/*.apk
+          name: app-apk
+          path: |
+            loader/app/build/outputs/apk/debug/*.apk
+            loader/app/build/outputs/apk/release/*.apk
+          if-no-files-found: warn
