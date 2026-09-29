@@ -30,13 +30,11 @@ jobs:
       - name: Build APK
         run: |
           cd loader
-          ./gradlew assembleDebug --no-daemon || ./gradlew assembleRelease --no-daemon
+          ./gradlew assembleDebug --no-daemon -I ../init.gradle
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-apk
-          path: |
-            loader/app/build/outputs/apk/debug/*.apk
-            loader/app/build/outputs/apk/release/*.apk
+          path: loader/app/build/outputs/apk/debug/*.apk
           if-no-files-found: warn
